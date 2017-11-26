@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/assets/images/icon.png">
+    <title>supervisor博客</title>
+    <link rel="stylesheet" href="/assets/css/index.css">
+    <link rel="stylesheet" href="/assets/css/admin_login.css">
+    <link rel="stylesheet" href="http://at.alicdn.com/t/font_443639_11pyvlo2nutprpb9.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="bgImg">
+            <img class="bgImage" src="/assets/images/338300-106.jpg" alt="">
+            <div class="nav">
+                <a class="logo" href=""><img class="iconImg" src="/assets/images/icon.png" alt=""></a>
+                <a class="menu" href="javascript:;">
+                    <i class="iconfont icon-menu1"></i>
+                    <span class="text">MENU</span>
+                </a>
+            </div>
+            <div class="header">
+                <h1>supervisor</h1>
+                <h2>人生得意须尽欢，莫使金樽空对月</h2>
+            </div>
+        </div>
+        <div class="post">
+            <% results.forEach(function(value,key){ %>
+                <article>
+                    <header style="margin-bottom: 25px;">
+                        <h2>
+                            <a href="/show/<%=value.id%>"><%=value.title%></a>
+                        </h2>
+                    </header>
+                    <section style="margin-bottom: 10px;">
+                        <p>
+                            <%=value.intro%>
+                        </p>
+                    </section>
+                    <footer>
+                        <img class="iconImg" src="/assets/images/icon.png" alt="">
+                        <a href="">Author</a>
+                        <span class="time"><%=moment.unix(value.addtime).format('YYYY-MM-DD HH:mm:ss')%></span>
+                        <span>点赞  
+                        <a class="zan" href="javascript:;"><img src="/assets/images/zan.png" width="20" height="20" alt=""></a> <i class="zani">+1</i>  </span>
+                    </footer>
+                </article>
+                <% }) %>
+        </div>
+        <div class="paginator">
+            <div class="content">
+                <a href="/?p=<%=page.prev%><%=param%>" class="prev">
+                    <- Newer Posts</a>
+                        <p>Page <span><%=page.now%></span> of <span><%=page.pages%></span></p>
+                        <a href="/?p=<%=page.next%><%=param%>" class="next">Older Posts -></a>
+            </div>
+        </div>
+    </div>
+    <div class="menuList">
+        <div class="menuLittle"><i class="iconfont icon-menu1"></i></div>
+        <ul>
+            <li><a href="javascript:;">MENU<span>X</span></a></li>
+            <% results1.forEach(function(value,key){ %>
+                <li>
+                    <a href="?tid=<%=value.id%>">
+                        <%=value.title%>... <span>i</span>
+                    </a>
+                </li>
+                <% }) %>
+        </ul>
+        <div class="search">
+            <input class="select" type="text" placeholder="搜索..">
+        </div>
+        <!--         <div class="form">
+            <a class="login" style="color: #fff;" href="/login">后台登陆</a>
+            <a class="reg" href="">注册</a>
+        </div> -->
+        <div class="no" style="color: #fff;padding:8px"></div>
+        <div class="btn">SUBSCRIBE</div>
+    </div>
+    <div class="sousuo">
+        <ul class="searchs">
+        </ul>
+    </div>
+    <div id="addarticle" style="display: none;">
+        <form action="/reg" method="post">
+            <table>
+                <tr>
+                    <td>用户名：</td>
+                    <td>
+                        <input type="text" class="username" name="username" value=""><span class="unameMsg"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <ul class="uMsg" style="margin:0;padding:0;text-align: right;"></ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>密码：</td>
+                    <td>
+                        <input type="password" name="password" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td>手机号码：</td>
+                    <td>
+                        <input type="text" class="phone" name="phone" value="">
+                        <button type="button" class="send">发送短信</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>验证码：</td>
+                    <td>
+                        <input type="text" name="code" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td>.</td>
+                </tr>
+                <tr align="center">
+                    <td colspan="2">
+                        <input type="submit" value="注册">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <script src="/plugins/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/index.js"></script>
+    <script src="/plugins/artdialog/dialog.js"></script>
+    <script>
+    $(function() {
+        $('.select').focus(function() {
+            $(this).attr('placeholder', '按下Enter搜索');
+            $(document).keypress(function(e) {
+                if (e.which == 13) {
+                    $('.searchs').html('');
+                    $('.no').html('');
+                    var value = $.trim($('.select').val());
+                    $.post('/aselect', { search: value }, function(data) {
+                        if (data.success === 1) {
+                            $('.sousuo').animate({ width: 300 }, 300);
+                            data.results.forEach(function(value, key) {
+                                var str = "";
+                                str += '<li><a href="/show/' + value.id + '">' + value.title + '</a></li>';
+                                console.log(value.id);
+                                $('.searchs').append(str);
+                            });
+                            return e.which == 10;
+                        } else {
+                            $('.sousuo').animate({ width: 0 }, 300);
+                            $('.no').html('抱歉，您查找的文章不见了...');
+                            return e.which == 10;
+                        }
+                    })
+                }
+            });
+        })
+        $('.sousuo').blur(function() {
+            $('.sousuo').animate({ width: 0 }, 300);
+        });
+        $('.reg').click(function(e) {
+            e.preventDefault();
+            dialog({
+                title: '欢迎',
+                content: $('#addarticle'),
+                okValue: '确认'
+            }).show();
+        })
+
+        $('.username').blur(function() {
+            var value = $.trim($(this).val());
+
+            $.post('/check', { username: value }, function(data) {
+                var content = '';
+                if (data.success == 1) {
+                    $('.unameMsg').text('该用户已经被注册，请选择');
+                    data.more.forEach(function(value, key) {
+                        content += '<li>' + value + '</li>';
+                    })
+                    $('.uMsg').html(content);
+
+                } else {
+                    $('.unameMsg').text('该用户可用');
+                    $('.uMsg').html('');
+                }
+            })
+        });
+
+        $('.send').click(function() {
+            var value = $.trim($('.phone').val());
+
+            $.post('/msg', { phone: value }, function(data) {
+                if (data.success === 1) {
+                    alert('发送成功');
+
+                    $('.send').prop('disabled', true);
+                    var max = 10;
+                    var timer = setInterval(function() {
+                        max--;
+                        if (max <= 0) {
+                            clearInterval(timer);
+                            $('.send').text('重新发送').prop('disabled', false);
+                        } else {
+                            $('.send').text(max + 's');
+                        }
+                    }, 1000)
+                } else {
+                    alert('发送失败');
+                }
+            })
+        })
+
+    })
+    </script>
+</body>
+
+</html>
